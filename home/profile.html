@@ -1,180 +1,267 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Page</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-        }
-        .profile-pic {
-            background-color: #ccc; /* Fallback color for loading */
-        }
-    </style>
-</head>
-<body class="bg-[#1E1E2F] text-white">
-    <div class="max-w-md mx-auto p-6">
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-4">
-            <h1 class="text-2xl font-bold">Profile</h1>
-            <button id="logoutButton" class="bg-red-500 px-4 py-2 rounded-md">Logout</button>
-        </div>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Profile Page</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <style>
+            body {
+                font-family: 'Roboto', sans-serif;
+            }
+            .profile-pic {
+                background-color: #ccc; /* Fallback color for loading */
+            }
+            .event-image {
+                width: 100%; /* Full width */
+                height: 100%; /* Make height equal to width for square */
+                object-fit: cover; /* Ensure images cover the area */
+                border-radius: 0.5rem; /* Rounded corners */
+            }
+            .bg-opacity-50 {
+                background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+            }
+            .flex {
+                display: flex;
+                align-items: center; /* Align items vertically */
+            }
+            .title {
+                padding: 10px;
+                font-weight: bold;
+            }
+            /* New styles for event card */
+            .event-card {
+                aspect-ratio: 1; /* Maintain square aspect ratio */
+                display: flex; 
+                flex-direction: column; /* Stack elements vertically */
+                justify-content: flex-end; /* Align text to the bottom */
+            }
 
-        <!-- Profile Section -->
-        <div class="bg-[#2A2A3B] p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-4">
-                <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="updateProfilePicture(event)">
-                <label for="profilePicInput" class="cursor-pointer">
-                    <img id="profilePic" src="https://placehold.co/100x100" alt="Profile picture" class="w-24 h-24 rounded-full mr-4 profile-pic">
-                </label>
+            .bt{
+                margin-bottom: 10px;
+            }
+
+            .loading-modal {
+                position: fixed; 
+                top: 0; 
+                left: 0; 
+                right: 0; 
+                bottom: 0; 
+                background-color: #1e1e2fa8; /* Semi-transparent background */
+                backdrop-filter: blur(100px);
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                z-index: 50; /* Make sure it is above other elements */
+                opacity: 0; /* Start hidden */
+                transition: opacity 0.5s; /* Smooth transition */
+            }
+
+            .loading-modal.show {
+                opacity: 1; /* Show the modal */
+            }
+
+            .loading-spinner {
+                border: 8px solid rgba(255, 255, 255, 0.2); /* Light border */
+                border-left-color: #1e1e2f; /* Main spinner color */
+                border-radius: 50%; /* Make it circular */
+                width: 50px; /* Spinner size */
+                height: 50px; /* Spinner size */
+                animation: spin 1s linear infinite; /* Spin animation */
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    </head>
+    <body class="bg-[#1E1E2F] text-white">
+        <div class="max-w-md mx-auto p-6">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-2xl font-bold">Profile</h1>
+                <button id="logoutButton" class="bg-red-500 px-4 py-2 rounded-md"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="bg-[#2A2A3B] p-6 rounded-lg shadow-md">
+                <div class="flex items-center mb-4">
+                    <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="updateProfilePicture(event)">
+                    <label for="profilePicInput" class="cursor-pointer">
+                        <img id="profilePic" src="https://placehold.co/100x100" alt="Profile picture" class="w-24 h-24 rounded-full mr-4 profile-pic">
+                    </label>
+                    <div>
+                        <h2 class="text-xl font-bold" id="userName">David Bekham</h2>
+                        <p class="text-sm text-gray-400" id="userEmail">david.bekham@example.com</p>
+                    </div>
+                </div>
+                <hr class="my-4">
                 <div>
-                    <h2 class="text-xl font-bold" id="userName">David Bekham</h2>
-                    <p class="text-sm text-gray-400" id="userEmail">david.bekham@example.com</p>
+                    <h3 class="font-bold">Account Information</h3>
+                    <p class="text-sm text-gray-400">User ID: <span id="userId">123456</span></p>
+                    <p class="text-sm text-gray-400">First Login Date: <span id="firstLoginDate">January 1, 2020</span></p>
                 </div>
             </div>
-            <hr class="my-4">
-            <div>
-                <h3 class="font-bold">Account Information</h3>
-                <p class="text-sm text-gray-400">User ID: <span id="userId">123456</span></p>
-                <p class="text-sm text-gray-400">First Login Date: <span id="firstLoginDate">January 1, 2020</span></p>
+
+            <!-- User Events Section -->
+            <div class="mt-6">
+                <h3 class="font-bold text-xl">My Events</h3>
+                <div id="eventsContainer" class="grid grid-cols-3 gap-4 mt-4">
+                    <!-- Events will be displayed here -->
+                </div>
             </div>
+
+            <div id="loadingModal" class="loading-modal">
+                <div class="loading-spinner"></div>
+            </div>
+
         </div>
 
-        <!-- User Posts Section -->
-        <div class="mt-6">
-            <h3 class="font-bold text-xl">My Posts</h3>
-            <div id="postsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                <!-- Posts will be displayed here -->
-            </div>
-        </div>
+        <script type="module">
+            // Import Firebase modules
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+            import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+            import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
 
-        <!-- Bottom Navigation -->
-        <div class="fixed bottom-0 left-0 right-0 bg-[#2A2A3B] p-4 flex justify-between items-center">
-            <i class="fas fa-home text-xl text-blue-500" onclick="navigate('home')"></i>
-            <i class="fas fa-search text-xl text-gray-400" onclick="navigate('search')"></i>
-            <div class="bg-blue-500 p-2 rounded-full" onclick="navigate('addEvent')">
-                <i class="fas fa-plus text-xl text-white"></i>
-            </div>
-            <i class="fas fa-user text-xl text-gray-400" onclick="navigate('profile')"></i>
-        </div>
-    </div>
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyBd1hHYd-GmINKv0l0qwi_10udbiLsTeX0",
+                authDomain: "quizzz-998c0.firebaseapp.com",
+                databaseURL: "https://quizzz-998c0-default-rtdb.firebaseio.com",
+                projectId: "quizzz-998c0",
+                storageBucket: "quizzz-998c0.appspot.com",
+                messagingSenderId: "320059830331",
+                appId: "1:320059830331:web:221f1eebb6e363cc78ac1e"
+            };
 
-    <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+            const auth = getAuth();
 
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBd1hHYd-GmINKv0l0qwi_10udbiLsTeX0",
-            authDomain: "quizzz-998c0.firebaseapp.com",
-            databaseURL: "https://quizzz-998c0-default-rtdb.firebaseio.com",
-            projectId: "quizzz-998c0",
-            storageBucket: "quizzz-998c0.appspot.com",
-            messagingSenderId: "320059830331",
-            appId: "1:320059830331:web:221f1eebb6e363cc78ac1e"
-        };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth();
-
-        // Check authentication state
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                // User is not signed in, redirect to login page
-                window.location.href = "../login"; // Replace with your login page URL
-            } else {
-                // User is signed in, display user info
-                displayUserInfo(user);
+            function showLoading() {
+                const loadingModal = document.getElementById('loadingModal');
+                loadingModal.classList.add('show'); // Add class to show modal
+    
+                // Hide modal after 5 seconds
+                setTimeout(() => {
+                    loadingModal.classList.remove('show'); // Remove class to hide modal
+                }, 5000);
             }
-        });
-
-        // Display user information
-        function displayUserInfo(user) {
-            const userNameElement = document.getElementById('userName');
-            const userEmailElement = document.getElementById('userEmail');
-            const userIdElement = document.getElementById('userId');
-            const firstLoginDateElement = document.getElementById('firstLoginDate');
-
-            // Set user info
-            userNameElement.textContent = user.displayName || "User Name";
-            userEmailElement.textContent = user.email || "Email not available";
-            userIdElement.textContent = user.uid;
-
-            // Retrieve first login date from Firebase
-            const userRef = ref(db, 'users/' + user.uid);
-            onValue(userRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    firstLoginDateElement.textContent = new Date(data.firstLoginDate).toLocaleDateString() || "Join date not available";
+            // Check authentication state
+            onAuthStateChanged(auth, (user) => {
+                if (!user) {
+                    // User is not signed in, redirect to login page
+                    window.location.href = "../login"; // Replace with your login page URL
                 } else {
-                    firstLoginDateElement.textContent = "Join date not available";
+                    // User is signed in, display user info
+                    displayUserInfo(user);
                 }
             });
 
-            // Call the function to display user posts
-            displayUserPosts(user.uid);
-        }
+            // Display user information
+            function displayUserInfo(user) {
+                const userNameElement = document.getElementById('userName');
+                const userEmailElement = document.getElementById('userEmail');
+                const userIdElement = document.getElementById('userId');
+                const firstLoginDateElement = document.getElementById('firstLoginDate');
+                const profilePicElement = document.getElementById('profilePic');
 
-        // Function to display user posts
-        function displayUserPosts(userId) {
-            const postsRef = ref(db, 'posts/' + userId); // Adjust the path based on your Firebase structure
-            onValue(postsRef, (snapshot) => {
-                const postsContainer = document.getElementById('postsContainer');
-                postsContainer.innerHTML = ''; // Clear previous posts
+                // Set user info
+                userNameElement.textContent = user.displayName || "User Name";
+                userEmailElement.textContent = user.email || "Email not available";
+                userIdElement.textContent = user.uid;
+                profilePicElement.src = user.photoURL || "https://placehold.co/100x100"; // Set profile picture
 
-                if (snapshot.exists()) {
-                    const posts = snapshot.val();
-                    for (let postId in posts) {
-                        const post = posts[postId];
-                        const postElement = document.createElement('div');
-                        postElement.className = "bg-[#2A2A3B] p-4 rounded-lg shadow-md"; // Card style
-                        postElement.innerHTML = `
-                            <h4 class="font-semibold">${post.title}</h4>
-                            <p class="text-gray-400">${post.content}</p>
-                        `;
-                        postsContainer.appendChild(postElement);
+                // Retrieve first login date from Firebase
+                const userRef = ref(db, 'users/' + user.uid);
+                onValue(userRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        firstLoginDateElement.textContent = new Date(data.firstLoginDate).toLocaleDateString() || "Join date not available";
+                        // Call the function to display user events
+                        displayUserEvents(user.uid); // Only pass userId
+                    } else {
+                        firstLoginDateElement.textContent = "Join date not available";
                     }
-                } else {
-                    postsContainer.innerHTML = '<p class="text-gray-400">No posts available.</p>';
-                }
-            });
-        }
-
-        // Logout function
-        document.getElementById('logoutButton').addEventListener('click', () => {
-            signOut(auth).then(() => {
-                // Sign-out successful.
-                window.location.href = "../login"; // Replace with your login page URL
-            }).catch((error) => {
-                console.error('Logout error:', error);
-            });
-        });
-
-        // Navigation function (update as needed)
-        function navigate(page) {
-            switch (page) {
-                case 'home':
-                    window.location.href = '../home'; // Update with your home page URL
-                    break;
-                case 'search':
-                    window.location.href = '../search'; // Update with your search page URL
-                    break;
-                case 'addEvent':
-                    window.location.href = '../addEvent'; // Update with your add event page URL
-                    break;
-                case 'profile':
-                    window.location.href = '../profile'; // Update with your profile page URL
-                    break;
-                default:
-                    break;
+                });
             }
-        }
-    </script>
-</body>
-</html>
+
+            // Function to display user events
+            function displayUserEvents(userId) {
+                const eventsRef = ref(db, 'users/' + userId + '/events'); // Pointing to the events node of the specific user
+                const eventsContainer = document.getElementById('eventsContainer');
+
+                onValue(eventsRef, (snapshot) => {
+                    eventsContainer.innerHTML = ''; // Clear previous events
+
+                    if (snapshot.exists()) {
+                        const events = snapshot.val();
+                        for (let eventId in events) {
+                            const event = events[eventId];
+                            
+                            const eventElement = document.createElement('div');
+                            eventElement.className = "bg-[#2A2A3B] rounded-lg shadow-md event-card"; // Card style
+                            eventElement.innerHTML = `
+                                <img src="${event.image}" alt="${event.eventName}" class="event-image rounded-lg">
+                                <h4 class="title">${event.eventName}</h4>
+                                <div class="flex justify-around items-center mt-2 bt">
+                                    <span class="text-white">${event.likeCount || 0} <i class="fas fa-thumbs-up ic"></i></span>
+                                    <span class="text-white">${event.shareCount || 0} <i class="fas fa-share ic"></i></span>
+                                </div>
+                            `;
+                            eventsContainer.appendChild(eventElement); // Append to the correct container
+                        }
+                    } else {
+                        eventsContainer.innerHTML = '<p class="text-gray-400">No events available.</p>'; // Message if no events found
+                    }
+                });
+            }
+
+            // Navigation function (update as needed)
+            function navigate(page) {
+                switch (page) {
+                    case 'home':
+                        window.location.href = '../home'; // Update with your home page URL
+                        break;
+                    case 'search':
+                        window.location.href = '../search'; // Update with your search page URL
+                        break;
+                    case 'addEvent':
+                        window.location.href = '../addEvent'; // Update with your add event page URL
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Logout function
+            document.getElementById('logoutButton').addEventListener('click', () => {
+                signOut(auth).then(() => {
+                    window.location.href = "../login"; // Replace with your login page URL
+                }).catch((error) => {
+                    console.error('Error signing out:', error);
+                });
+            });
+
+            // Function to update the profile picture
+            function updateProfilePicture(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const profilePicElement = document.getElementById('profilePic');
+                        profilePicElement.src = e.target.result; // Update image source
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            showLoading();
+        </script>
+    </body>
+    </html>
