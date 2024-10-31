@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Sign In with Google</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: url('https://placehold.co/800x600') no-repeat center center fixed;
+      background-size: cover;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-blue-50">
+  <div id="login-container" class="bg-white rounded-3xl shadow-lg p-8 max-w-md w-full text-center">
+    <div class="flex justify-center mb-6">
+      <div class="bg-gray-200 p-4 rounded-full">
+        <i class="fas fa-sign-in-alt text-2xl"></i>
+      </div>
+    </div>
+    <h1 class="text-2xl font-semibold mb-2">Sign in with Google</h1>
+    <button id="googleSignIn" class="bg-white border rounded-full p-3 mt-6 flex items-center justify-center">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" alt="Google logo" class="h-6 w-6 mr-2"/>
+      <span>Sign in with Google</span>
+    </button>
+  </div>
+
+  <div id="profile-container" class="hidden bg-white rounded-3xl shadow-lg p-8 max-w-md w-full text-center">
+    <img id="profilePic" alt="User Profile Picture" class="w-20 h-20 rounded-full mx-auto mb-4"/>
+    <h2 id="userName" class="text-xl font-semibold"></h2>
+    <p id="welcomeMessage" class="text-green-600 font-semibold mb-4">Welcome back!</p>
+    <button id="signOut" class="mt-6 px-4 py-2 bg-red-500 text-white rounded-full hidden">Sign Out</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBd1hHYd-GmINKv0l0qwi_10udbiLsTeX0",
+      authDomain: "quizzz-998c0.firebaseapp.com",
+      databaseURL: "https://quizzz-998c0-default-rtdb.firebaseio.com",
+      projectId: "quizzz-998c0",
+      storageBucket: "quizzz-998c0.appspot.com",
+      messagingSenderId: "320059830331",
+      appId: "1:320059830331:web:221f1eebb6e363cc78ac1e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const database = getDatabase(app);
+
+    // Ensure the session is persistent across browser restarts
+    setPersistence(auth, browserLocalPersistence)
+      .catch((error) => {
+        console.error("Error setting persistence:", error);
+      });
+
+    document.getElementById("googleSignIn").addEventListener("click", () => {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          displayUserProfile(user);
+          saveFirstLoginDate(user.uid); // Call the function to save first login date
+          setTimeout(() => {
+            window.location.href = "nextPage.html"; // Redirect to the next page
+          }, 3000); // 3-second delay before redirecting
+        })
+        .catch((error) => {
+          console.error("Error signing in:", error);
+        });
+    });
+
+    function displayUserProfile(user) {
+      document.getElementById("login-container").classList.add("hidden");
+      document.getElementById("profile-container").classList.remove("hidden");
+      document.getElementById("profilePic").src = user.photoURL;
+      document.getElementById("userName").textContent = user.displayName;
+      document.getElementById("welcomeMessage").classList.remove("hidden");
+      document.getElementById("signOut").classList.add("hidden"); // Hide the sign-out button
+    }
+
+    function saveFirstLoginDate(userId) {
+      const userRef = ref(database, 'users/' + userId);
+      get(child(userRef, 'firstLoginDate')).then((snapshot) => {
+        if (!snapshot.exists()) {
+          // Save the first login date if it doesn't already exist
+          set(userRef, {
+            firstLoginDate: new Date().toISOString() // Save current date
+          }).catch((error) => {
+            console.error("Error saving first login date:", error);
+          });
+        }
+      }).catch((error) => {
+        console.error("Error fetching first login date:", error);
+      });
+    }
+
+    // Sign out and clear the local session
+    document.getElementById("signOut").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        document.getElementById("profile-container").classList.add("hidden");
+        document.getElementById("login-container").classList.remove("hidden");
+      }).catch((error) => {
+        console.error("Error signing out:", error);
+      });
+    });
+
+    // Check for an already signed-in user
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        displayUserProfile(user);
+        setTimeout(() => {
+          window.location.href = "../home/"; // Redirect to the next page if user is already logged in
+        }, 2000);
+      } else {
+        document.getElementById("login-container").classList.remove("hidden");
+        document.getElementById("profile-container").classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>

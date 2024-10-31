@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .profile-pic {
+            background-color: #ccc; /* Fallback color for loading */
+        }
+    </style>
+</head>
+<body class="bg-[#1E1E2F] text-white">
+    <div class="max-w-md mx-auto p-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-bold">Profile</h1>
+            <button id="logoutButton" class="bg-red-500 px-4 py-2 rounded-md">Logout</button>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="bg-[#2A2A3B] p-6 rounded-lg shadow-md">
+            <div class="flex items-center mb-4">
+                <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="updateProfilePicture(event)">
+                <label for="profilePicInput" class="cursor-pointer">
+                    <img id="profilePic" src="https://placehold.co/100x100" alt="Profile picture" class="w-24 h-24 rounded-full mr-4 profile-pic">
+                </label>
+                <div>
+                    <h2 class="text-xl font-bold" id="userName">David Bekham</h2>
+                    <p class="text-sm text-gray-400" id="userEmail">david.bekham@example.com</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div>
+                <h3 class="font-bold">Account Information</h3>
+                <p class="text-sm text-gray-400">User ID: <span id="userId">123456</span></p>
+                <p class="text-sm text-gray-400">First Login Date: <span id="firstLoginDate">January 1, 2020</span></p>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-[#2A2A3B] p-4 flex justify-between items-center">
+            <i class="fas fa-home text-xl text-blue-500" onclick="navigate('home')"></i>
+            <i class="fas fa-search text-xl text-gray-400" onclick="navigate('search')"></i>
+            <div class="bg-blue-500 p-2 rounded-full" onclick="navigate('addEvent')">
+                <i class="fas fa-plus text-xl text-white"></i>
+            </div>
+            <i class="fas fa-user text-xl text-gray-400" onclick="navigate('profile')"></i>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBd1hHYd-GmINKv0l0qwi_10udbiLsTeX0",
+            authDomain: "quizzz-998c0.firebaseapp.com",
+            databaseURL: "https://quizzz-998c0-default-rtdb.firebaseio.com",
+            projectId: "quizzz-998c0",
+            storageBucket: "quizzz-998c0.appspot.com",
+            messagingSenderId: "320059830331",
+            appId: "1:320059830331:web:221f1eebb6e363cc78ac1e"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth();
+
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // User is not signed in, redirect to login page
+                window.location.href = "../login"; // Replace with your login page URL
+            } else {
+                // User is signed in, display user info
+                displayUserInfo(user);
+            }
+        });
+
+        // Display user information
+        function displayUserInfo(user) {
+            const userNameElement = document.getElementById('userName');
+            const userEmailElement = document.getElementById('userEmail');
+            const userIdElement = document.getElementById('userId');
+            const firstLoginDateElement = document.getElementById('firstLoginDate');
+
+            // Set user info
+            userNameElement.textContent = user.displayName || "User Name";
+            userEmailElement.textContent = user.email || "Email not available";
+            userIdElement.textContent = user.uid;
+
+            // Retrieve first login date from Firebase
+            const userRef = ref(db, 'users/' + user.uid);
+            onValue(userRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    firstLoginDateElement.textContent = new Date(data.firstLoginDate).toLocaleDateString() || "Join date not available";
+                } else {
+                    firstLoginDateElement.textContent = "Join date not available";
+                }
+            });
+        }
+
+        // Update profile picture
+        function updateProfilePicture(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const profilePic = document.getElementById('profilePic');
+                profilePic.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        // Logout functionality
+        document.getElementById("logoutButton").addEventListener("click", () => {
+            signOut(auth).then(() => {
+                window.location.href = "login.html"; // Replace with your login page URL
+            }).catch((error) => {
+                console.error("Error signing out:", error);
+            });
+        });
+
+        // Navigation function
+        function navigate(section) {
+            if (section === 'home') {
+                window.location.href = "index.html"; // Replace with your home page URL
+            } else if (section === 'search') {
+                window.location.href = "search.html"; // Replace with your search page URL
+            } else if (section === 'addEvent') {
+                window.location.href = "addEvent.html"; // Replace with your add event page URL
+            } else if (section === 'profile') {
+                window.location.href = "profile.html"; // Replace with your profile page URL
+            }
+        }
+    </script>
+</body>
+</html>

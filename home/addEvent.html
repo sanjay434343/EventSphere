@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Event</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
+        <h1 class="text-xl font-bold mb-4">Upload Event</h1>
+        <form id="eventForm">
+            <div class="mb-4">
+                <label for="collegeName" class="block text-sm font-medium text-gray-700">College Name</label>
+                <input type="text" id="collegeName" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+            <div class="mb-4">
+                <label for="eventName" class="block text-sm font-medium text-gray-700">Event Name</label>
+                <input type="text" id="eventName" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+            <div class="mb-4">
+                <label for="eventDate" class="block text-sm font-medium text-gray-700">Date of Event</label>
+                <input type="date" id="eventDate" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+            <div class="mb-4">
+                <label for="eventTime" class="block text-sm font-medium text-gray-700">Time of Event</label>
+                <input type="time" id="eventTime" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+            <div class="mb-4">
+                <label for="description" class="block text-sm font-medium text-gray-700">Event Description</label>
+                <textarea id="description" rows="3" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="locationLink" class="block text-sm font-medium text-gray-700">Location Link</label>
+                <input type="url" id="locationLink" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+            <div class="mb-4">
+                <label for="tags" class="block text-sm font-medium text-gray-700">Tags (comma separated)</label>
+                <input type="text" id="tags" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+            <div class="mb-4">
+                <label for="imageInput" class="block text-sm font-medium text-gray-700">Event Image</label>
+                <input type="file" id="imageInput" accept="image/*" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" onchange="previewImage(event)">
+            </div>
+            <div class="mb-4">
+                <img id="imagePreview" alt="Image Preview" class="w-full h-32 object-cover mb-2 hidden">
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white font-bold py-2 rounded-md">Upload Event</button>
+        </form>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBd1hHYd-GmINKv0l0qwi_10udbiLsTeX0",
+            authDomain: "quizzz-998c0.firebaseapp.com",
+            databaseURL: "https://quizzz-998c0-default-rtdb.firebaseio.com",
+            projectId: "quizzz-998c0",
+            storageBucket: "quizzz-998c0.appspot.com",
+            messagingSenderId: "320059830331",
+            appId: "1:320059830331:web:221f1eebb6e363cc78ac1e"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth();
+
+        // Preview selected image
+        function previewImage(event) {
+            const imagePreview = document.getElementById('imagePreview');
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('hidden'); // Show the image preview
+            }
+            reader.readAsDataURL(file);
+        }
+
+        // Handle form submission
+        document.getElementById('eventForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const collegeName = document.getElementById('collegeName').value;
+            const eventName = document.getElementById('eventName').value;
+            const eventDate = document.getElementById('eventDate').value;
+            const eventTime = document.getElementById('eventTime').value;
+            const description = document.getElementById('description').value;
+            const locationLink = document.getElementById('locationLink').value;
+            const tags = document.getElementById('tags').value;
+            const imageInput = document.getElementById('imageInput');
+
+            // Convert image to Base64
+            const file = imageInput.files[0];
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                const base64String = reader.result;
+
+                // Get current user
+                const user = auth.currentUser;
+                if (user) {
+                    // Prepare the data to upload
+                    const eventData = {
+                        collegeName,
+                        eventName,
+                        eventDate,
+                        eventTime,
+                        description,
+                        locationLink,
+                        tags: tags.split(',').map(tag => tag.trim()), // Split tags by comma
+                        image: base64String,
+                        uploaderUID: user.uid, // Add uploader's UID
+                        uploaderName: user.displayName || "Unknown", // Add uploader's name
+                        uploaderPhoto: user.photoURL || "https://placehold.co/40x40" // Add uploader's profile picture
+                    };
+
+                    // Upload data to Firebase under the user's ID
+                    const userRef = ref(db, 'users/' + user.uid + '/events'); // Store all events under the user's UID
+                    push(userRef, eventData) // Push new event data as a new child
+                        .then(() => {
+                            alert('Event uploaded successfully!');
+                            document.getElementById('eventForm').reset(); // Reset the form
+                            document.getElementById('imagePreview').classList.add('hidden'); // Hide the preview
+                        })
+                        .catch((error) => {
+                            console.error('Error uploading event:', error);
+                            alert('Failed to upload event. Please try again.');
+                        });
+                } else {
+                    alert('User not authenticated. Please log in.');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+    </script>
+</body>
+</html>
