@@ -42,6 +42,14 @@
             </div>
         </div>
 
+        <!-- User Posts Section -->
+        <div class="mt-6">
+            <h3 class="font-bold text-xl">My Posts</h3>
+            <div id="postsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                <!-- Posts will be displayed here -->
+            </div>
+        </div>
+
         <!-- Bottom Navigation -->
         <div class="fixed bottom-0 left-0 right-0 bg-[#2A2A3B] p-4 flex justify-between items-center">
             <i class="fas fa-home text-xl text-blue-500" onclick="navigate('home')"></i>
@@ -108,38 +116,63 @@
                     firstLoginDateElement.textContent = "Join date not available";
                 }
             });
+
+            // Call the function to display user posts
+            displayUserPosts(user.uid);
         }
 
-        // Update profile picture
-        function updateProfilePicture(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const profilePic = document.getElementById('profilePic');
-                profilePic.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
+        // Function to display user posts
+        function displayUserPosts(userId) {
+            const postsRef = ref(db, 'posts/' + userId); // Adjust the path based on your Firebase structure
+            onValue(postsRef, (snapshot) => {
+                const postsContainer = document.getElementById('postsContainer');
+                postsContainer.innerHTML = ''; // Clear previous posts
+
+                if (snapshot.exists()) {
+                    const posts = snapshot.val();
+                    for (let postId in posts) {
+                        const post = posts[postId];
+                        const postElement = document.createElement('div');
+                        postElement.className = "bg-[#2A2A3B] p-4 rounded-lg shadow-md"; // Card style
+                        postElement.innerHTML = `
+                            <h4 class="font-semibold">${post.title}</h4>
+                            <p class="text-gray-400">${post.content}</p>
+                        `;
+                        postsContainer.appendChild(postElement);
+                    }
+                } else {
+                    postsContainer.innerHTML = '<p class="text-gray-400">No posts available.</p>';
+                }
+            });
         }
 
-        // Logout functionality
-        document.getElementById("logoutButton").addEventListener("click", () => {
+        // Logout function
+        document.getElementById('logoutButton').addEventListener('click', () => {
             signOut(auth).then(() => {
-                window.location.href = "login.html"; // Replace with your login page URL
+                // Sign-out successful.
+                window.location.href = "../login"; // Replace with your login page URL
             }).catch((error) => {
-                console.error("Error signing out:", error);
+                console.error('Logout error:', error);
             });
         });
 
-        // Navigation function
-        function navigate(section) {
-            if (section === 'home') {
-                window.location.href = "index.html"; // Replace with your home page URL
-            } else if (section === 'search') {
-                window.location.href = "search.html"; // Replace with your search page URL
-            } else if (section === 'addEvent') {
-                window.location.href = "addEvent.html"; // Replace with your add event page URL
-            } else if (section === 'profile') {
-                window.location.href = "profile.html"; // Replace with your profile page URL
+        // Navigation function (update as needed)
+        function navigate(page) {
+            switch (page) {
+                case 'home':
+                    window.location.href = '../home'; // Update with your home page URL
+                    break;
+                case 'search':
+                    window.location.href = '../search'; // Update with your search page URL
+                    break;
+                case 'addEvent':
+                    window.location.href = '../addEvent'; // Update with your add event page URL
+                    break;
+                case 'profile':
+                    window.location.href = '../profile'; // Update with your profile page URL
+                    break;
+                default:
+                    break;
             }
         }
     </script>
