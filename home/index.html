@@ -75,15 +75,22 @@
         <div class="flex items-center justify-between mb-4" id="userProfile">
             <div class="flex items-center space-x-2">
                 <img src="https://placehold.co/40x40" alt="Profile picture" id="profilePicture" class="w-10 h-10 rounded-full">
-                <span class="font-bold" id="userName">User Name</span>
+                <span class="font-bold" id="userName">Loading</span>
             </div>
-            <div class="bg-white-500 p-2 rounded-full cursor-pointer" onclick="window.location.href='profile.html'">
-                <i class="fas fa-user text-xl text-gray-400 cursor-pointer"></i>
-            </div>
-            <div class="bg-white-500 p-2 rounded-full cursor-pointer ss" onclick="window.location.href='profile.html'" style="margin-left: -140px;">
-                <i class="fas fa-search text-xl text-gray-400 cursor-pointer"></i>
+            <div class="flex items-center space-x-4"> <!-- Flexbox for icon alignment and spacing -->
+                <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='profile.html'">
+                    <i class="fas fa-user text-xl text-gray-400"></i>
+                </div>
+                <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='addEvent.html'">
+                    <i class="fas fa-add text-xl text-gray-400"></i>
+                </div>
+                <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='profile.html'">
+                    <i class="fas fa-search text-xl text-gray-400"></i>
+                </div>
+                
             </div>
         </div>
+        
 
         <!-- Loading Spinner -->
         <div id="loadingSpinner" class="flex items-center justify-center hidden mb-4">
@@ -95,189 +102,175 @@
 
     
 
-    <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
-
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBd1hHYd-GmINKv0l0qwi_10udbiLsTeX0",
-            authDomain: "quizzz-998c0.firebaseapp.com",
-            databaseURL: "https://quizzz-998c0-default-rtdb.firebaseio.com",
-            projectId: "quizzz-998c0",
-            storageBucket: "quizzz-998c0.appspot.com",
-            messagingSenderId: "320059830331",
-            appId: "1:320059830331:web:221f1eebb6e363cc78ac1e"
-        };
+        <script type="module">
+            // Import Firebase modules
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+            import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+            import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
         
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth();
-    
-        // Check authentication state
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = "login/"; // Replace with your login page URL
-            } else {
-                // Set user name and profile picture
-                document.getElementById('userName').textContent = user.displayName || "User Name";
-                document.getElementById('profilePicture').src = user.photoURL || "https://placehold.co/40x40"; // Default image if none
-
-                displayPosts(); // Call the function to display posts for all users
-            }
-        });
-        function displayPosts() {
-            const postsContainer = document.getElementById('postsContainer');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            
-            loadingSpinner.classList.remove('hidden'); // Show spinner
-            const usersRef = ref(db, 'users'); // Reference to the users node
-            
-            onValue(usersRef, usersSnapshot => {
-                postsContainer.innerHTML = ''; // Clear previous events
-                loadingSpinner.classList.add('hidden'); // Hide spinner
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyBd1hHYd-GmINKv0l0qwi_10udbiLsTeX0",
+                authDomain: "quizzz-998c0.firebaseapp.com",
+                databaseURL: "https://quizzz-998c0-default-rtdb.firebaseio.com",
+                projectId: "quizzz-998c0",
+                storageBucket: "quizzz-998c0.appspot.com",
+                messagingSenderId: "320059830331",
+                appId: "1:320059830331:web:221f1eebb6e363cc78ac1e"
+            };
         
-                usersSnapshot.forEach(userSnapshot => {
-                    const userData = userSnapshot.val();
-                    const events = userData.events;
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+            const auth = getAuth();
         
-                    if (events) {
-                        for (const eventKey in events) {
-                            const eventData = events[eventKey];
-                            
-                            // Create HTML for each event using provided structure
-                            const eventHTML = `
-                                <div class="bg-[#2A2A3B] p-4 rounded-lg transition-all duration-300 hover:shadow-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <div class="flex items-center space-x-2">
-                                            <img src="${eventData.uploaderPhoto || 'https://placehold.co/40x40'}" alt="User profile picture" class="w-10 h-10 rounded-full">
-                                            <div>
-                                                <span class="font-bold">${eventData.uploaderName || "User Name"}</span>
+            // Check authentication state
+            onAuthStateChanged(auth, (user) => {
+                if (!user) {
+                    window.location.href = "login/"; // Replace with your login page URL
+                } else {
+                    // Set user name and profile picture
+                    document.getElementById('userName').textContent = user.displayName || "User Name";
+                    document.getElementById('profilePicture').src = user.photoURL || "https://placehold.co/40x40"; // Default image if none
+        
+                    displayPosts(); // Call the function to display posts for all users
+                }
+            });
+        
+            // Function to display posts
+            function displayPosts() {
+                const postsContainer = document.getElementById('postsContainer');
+                const loadingSpinner = document.getElementById('loadingSpinner');
+        
+                loadingSpinner.classList.remove('hidden'); // Show spinner
+                const usersRef = ref(db, 'users'); // Reference to the users node
+        
+                onValue(usersRef, usersSnapshot => {
+                    postsContainer.innerHTML = ''; // Clear previous events
+                    loadingSpinner.classList.add('hidden'); // Hide spinner
+        
+                    usersSnapshot.forEach(userSnapshot => {
+                        const userData = userSnapshot.val();
+                        const events = userData.events;
+        
+                        if (events) {
+                            for (const eventKey in events) {
+                                const eventData = events[eventKey];
+        
+                                // Create HTML for each event using provided structure
+                                const eventHTML = `
+                                    <div class="bg-[#2A2A3B] p-4 rounded-lg transition-all duration-300 hover:shadow-lg">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center space-x-2">
+                                                <img src="${eventData.uploaderPhoto || 'https://placehold.co/40x40'}" alt="User profile picture" class="w-10 h-10 rounded-full">
+                                                <div>
+                                                    <span class="font-bold">${eventData.uploaderName || "User Name"}</span>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <button class="text-gray-400 flex items-center space-x-1" id="likeButton-${eventKey}" onclick="likePost('${userSnapshot.key}', '${eventKey}')">
+                                                    <i class="fas fa-thumbs-up"></i>
+                                                    <span id="likeCount-${eventKey}">${eventData.likeCount || 0}</span>
+                                                </button>
+                                                <button class="text-gray-400 flex items-center space-x-1" onclick="sharePost('${eventData.eventLink}', '${eventKey}')">
+                                                    <i class="fas fa-share"></i>
+                                                    <span id="shareCount-${eventKey}">${eventData.shareCount || 0}</span>
+                                                </button>
                                             </div>
                                         </div>
-                                        <div class="flex items-center space-x-2">
-                                            <button class="text-gray-400 flex items-center space-x-1" onclick="likePost('${userSnapshot.key}', '${eventKey}')">
-                                                <i class="fas fa-thumbs-up"></i>
-                                                <span id="likeCount-${eventKey}">${eventData.likeCount || 0}</span>
-                                            </button>
-                                            <button class="text-gray-400 flex items-center space-x-1" onclick="sharePost('${eventData.eventLink}')">
-                                                <i class="fas fa-share"></i>
-                                                <span id="shareCount-${eventKey}">${eventData.shareCount || 0}</span>
-                                            </button>
+                                        <img src="${eventData.image}" alt="Event image" class="w-full h-60 object-cover rounded-md mb-2">
+                                        <div class="mb-2">
+                                            <span class="font-bold tx"><i class="fa-solid fa-calendar-days"></i></span> 
+                                            <span class="da">${eventData.eventDate}</span>
                                         </div>
-                                    </div>
-                                    <img src="${eventData.image}" alt="Event image" class="w-full h-60 object-cover rounded-md mb-2">
-                                    <div class="mb-2">
-                                        <span class="font-bold tx"><i class="fa-solid fa-calendar-days"></i></span> 
-                                        <span class="da">${eventData.eventDate}</span>
-                                    </div>
-                                    <div class="mb-2">
-                                        <span class="font-bold tx"><i class="fa-solid fa-clock-rotate-left"></i></span> 
-                                        <span class="da">${eventData.eventTime}</span>
-                                    </div>
-                                      <div class="flex items-center justify-between text-gray-400 text-sm">
-                                        <a href="${eventData.locationLink}" target="_blank" class="loc">Location&nbsp;<i class="fa-solid fa-location-crosshairs" class="loci"></i></a>
-                                    </div>
-                                    <div class="event-description">
-                                        <p class="description text-sm mb-2" id="shortDesc-${eventKey}">
-                                            ${eventData.description.length > 100 ? eventData.description.substring(0, 100) + '...' : eventData.description}
-                                        </p>
-                                        ${eventData.description.length > 100 ? `<span class="read-more">More</span>` : ''}
-                                        <p class="full-description text-sm mb-2" style="display:none; margin:0;">
-                                            <span>${eventData.description}</span>
+                                        <div class="mb-2">
+                                            <span class="font-bold tx"><i class="fa-solid fa-clock-rotate-left"></i></span> 
+                                            <span class="da">${eventData.eventTime}</span>
+                                        </div>
+                                        <div class="flex items-center justify-between text-gray-400 text-sm">
+                                            <a href="${eventData.locationLink}" target="_blank" class="loc">Location&nbsp;<i class="fa-solid fa-location-crosshairs" class="loci"></i></a>
+                                        </div>
+                                        <div class="event-description">
+                                            <p class="description text-sm mb-2" id="shortDesc-${eventKey}">
+                                                ${eventData.description.length > 100 ? eventData.description.substring(0, 100) + '...' : eventData.description}
+                                            </p>
+                                            ${eventData.description.length > 100 ? `<span class="read-more">More</span>` : ''}
+                                            <p class="full-description text-sm mb-2" style="display:none; margin:0;">
+                                                <span>${eventData.description}</span>
+                                            </p>
+                                        </div>
+                                        <p class="text-sm mb-2" style="visibility:hidden; margin:0;">
+                                            <span class="text-blue-500">#${eventData.tags.join(', ')}</span>
                                         </p>
                                     </div>
-                                    <p class="text-sm mb-2" style="visibility:hidden; margin:0;">
-                                        <span class="text-blue-500">#${eventData.tags.join(', ')}</span>
-                                    </p>
-                                  
-                                </div>
-                            `;
-                            postsContainer.innerHTML += eventHTML; // Append event to posts container
-                        }
+                                `;
+                                postsContainer.innerHTML += eventHTML; // Append event to posts container
+                            }
         
-                        // Re-add the read more functionality for the newly added posts
-                        const readMoreButtons = postsContainer.querySelectorAll('.read-more');
+                            // Re-add the read more functionality for the newly added posts
+                            const readMoreButtons = postsContainer.querySelectorAll('.read-more');
         
-                        readMoreButtons.forEach(button => {
-                            button.addEventListener('click', function() {
-                                const fullDescription = this.nextElementSibling; // Full description
-                                const shortDescription = this.previousElementSibling; // Short description
-                                
-                                if (fullDescription.style.display === 'none' || fullDescription.style.display === '') {
-                                    fullDescription.style.display = 'block'; // Show full description
-                                    shortDescription.style.display = 'none'; // Hide short description
-                                    this.textContent = 'Hide'; // Change button text
-                                } else {
-                                    fullDescription.style.display = 'none'; // Hide full description
-                                    shortDescription.style.display = 'block'; // Show short description
-                                    this.textContent = 'Hide'; // Change button text
-                                }
+                            readMoreButtons.forEach(button => {
+                                button.addEventListener('click', function() {
+                                    const fullDescription = this.nextElementSibling; // Full description
+                                    const shortDescription = this.previousElementSibling; // Short description
+        
+                                    if (fullDescription.style.display === 'none' || fullDescription.style.display === '') {
+                                        fullDescription.style.display = 'block'; // Show full description
+                                        shortDescription.style.display = 'none'; // Hide short description
+                                        this.textContent = 'Hide'; // Change button text
+                                    } else {
+                                        fullDescription.style.display = 'none'; // Hide full description
+                                        shortDescription.style.display = 'block'; // Show short description
+                                        this.textContent = 'Hide'; // Change button text
+                                    }
+                                });
                             });
-                        });
-                    }
+                        }
+                    });
+                }, (error) => {
+                    console.error("Error fetching posts:", error);
+                    loadingSpinner.classList.add('hidden'); // Hide spinner on error
                 });
-            }, (error) => {
-                console.error("Error fetching posts:", error);
-                loadingSpinner.classList.add('hidden'); // Hide spinner on error
-            });
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const readMoreButtons = document.querySelectorAll('.read-more');
-        
-            readMoreButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const fullDescription = this.nextElementSibling; // Full description
-                    const shortDescription = this.previousElementSibling; // Short description
-                    
-                    if (fullDescription.style.display === 'none' || fullDescription.style.display === '') {
-                        fullDescription.style.display = 'block'; // Show full description
-                        shortDescription.style.display = 'none'; // Hide short description
-                        this.textContent = 'Read Less'; // Change button text
-                    } else {
-                        fullDescription.style.display = 'none'; // Hide full description
-                        shortDescription.style.display = 'block'; // Show short description
-                        this.textContent = 'Read More'; // Change button text
-                    }
-                });
-            });
-        });
-        
-        
-        // Like post function
-        function likePost(userId, eventId) {
-            const likeCountElement = document.getElementById(`likeCount-${eventId}`);
-            const currentLikes = parseInt(likeCountElement.textContent);
-            likeCountElement.textContent = currentLikes + 1; // Update like count locally
-            const eventRef = ref(db, `users/${userId}/events/${eventId}`);
-            update(eventRef, {
-                likeCount: currentLikes + 1 // Update like count in Firebase
-            });
-        }
-        
-        // Share post function
-        function sharePost(eventLink) {
-            const shareCountElement = document.getElementById(`shareCount-${eventId}`);
-            const currentShares = parseInt(shareCountElement.textContent);
-            shareCountElement.textContent = currentShares + 1; // Update share count locally
-            // Implement your share logic here (e.g., copying link to clipboard)
-            navigator.clipboard.writeText(eventLink).then(() => {
-                alert("Event link copied to clipboard!");
-            });
-        }
-
-
-        function navigate(page) {
-            if (page === 'addEvent') {
-                window.location.href = "addEvent.html";
-            } else {
-                window.location.href = `${page}/`; // Navigate to respective pages
             }
-        }
-    </script>
+        
+            // Like post function
+            window.likePost = function(userId, eventId) {
+                const userRef = ref(db, `users/${userId}/likes/${eventId}`); // Reference to track user likes
+                const likeCountElement = document.getElementById(`likeCount-${eventId}`);
+        
+                onValue(userRef, (snapshot) => {
+                    if (!snapshot.exists()) {
+                        const currentLikes = parseInt(likeCountElement.textContent);
+                        likeCountElement.textContent = currentLikes + 1; // Update like count locally
+                        update(userRef, { liked: true }); // Mark this post as liked by the user
+        
+                        const eventRef = ref(db, `users/${userId}/events/${eventId}`);
+                        update(eventRef, { likeCount: currentLikes + 1 }); // Update like count in Firebase
+                    } 
+                });
+            }
+        
+            // Share post function
+            window.sharePost = function(eventLink, eventId) {
+                const shareCountElement = document.getElementById(`shareCount-${eventId}`);
+                const currentShares = parseInt(shareCountElement.textContent);
+                shareCountElement.textContent = currentShares + 1; // Update share count locally
+                // Implement your share logic here (e.g., copying link to clipboard)
+                navigator.clipboard.writeText(eventLink).then(() => {
+                    alert("Event link copied to clipboard!");
+                });
+            }
+        
+            // Navigate function to change pages
+            function navigate(page) {
+                if (page === 'addEvent') {
+                    window.location.href = "addEvent.html";
+                } else {
+                    window.location.href = `${page}/`; // Navigate to respective pages
+                }
+            }
+        </script>
+        
 </body>
 </html>

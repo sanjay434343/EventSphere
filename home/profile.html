@@ -76,6 +76,13 @@
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
             }
+
+            #logoutButton {
+                cursor: pointer;
+                position: relative; /* Ensure it can be layered */
+                z-index: 1000; /* Ensure it's above other elements */
+            }
+            
         </style>
     </head>
     <body class="bg-[#1E1E2F] text-white">
@@ -83,7 +90,9 @@
             <!-- Header -->
             <div class="flex items-center justify-between mb-4">
                 <h1 class="text-2xl font-bold">Profile</h1>
-                <button id="logoutButton" class="bg-red-500 px-4 py-2 rounded-md"><i class="fa-solid fa-right-from-bracket"></i></button>
+                <a id="logoutButton" class="bg-red-500 px-4 py-2 rounded-md">
+                    Logout
+                </a>
             </div>
 
             <!-- Profile Section -->
@@ -239,14 +248,19 @@
                 }
             }
 
-            // Logout function
-            document.getElementById('logoutButton').addEventListener('click', () => {
-                signOut(auth).then(() => {
-                    window.location.href = "../login"; // Replace with your login page URL
-                }).catch((error) => {
-                    console.error('Error signing out:', error);
+            document.addEventListener('DOMContentLoaded', () => {
+                const logoutButton = document.getElementById('logoutButton');
+                logoutButton.addEventListener('click', () => {
+                    console.log("Logout button clicked"); // Debugging log
+                    signOut(auth).then(() => {
+                        console.log("Sign-out successful"); // Debugging log
+                        window.location.href = "../login"; // Redirect to login page
+                    }).catch((error) => {
+                        console.error("Error signing out: ", error);
+                    });
                 });
             });
+            
 
             // Function to update the profile picture
             function updateProfilePicture(event) {
