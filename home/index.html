@@ -81,7 +81,7 @@
                 <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='profile.html'">
                     <i class="fas fa-user text-xl text-gray-400"></i>
                 </div>
-                <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='addEvent.html'">
+                <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='../add/'">
                     <i class="fas fa-add text-xl text-gray-400"></i>
                 </div>
                 <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='profile.html'">
@@ -127,7 +127,7 @@
             // Check authentication state
             onAuthStateChanged(auth, (user) => {
                 if (!user) {
-                    window.location.href = "login/"; // Replace with your login page URL
+                    window.location.href = "../login/"; // Replace with your login page URL
                 } else {
                     // Set user name and profile picture
                     document.getElementById('userName').textContent = user.displayName || "User Name";
@@ -262,14 +262,7 @@
                 });
             }
         
-            // Navigate function to change pages
-            function navigate(page) {
-                if (page === 'addEvent') {
-                    window.location.href = "addEvent.html";
-                } else {
-                    window.location.href = `${page}/`; // Navigate to respective pages
-                }
-            }
+         
         </script>
         
 </body>

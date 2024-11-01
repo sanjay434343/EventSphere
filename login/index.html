@@ -7,33 +7,62 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: url('https://placehold.co/800x600') no-repeat center center fixed;
+      background: url('bg.jpeg') no-repeat center center fixed;
       background-size: cover;
+    }
+
+    #login-container , 
+    #profile-container{
+      margin: 20px;
+    }
+
+    button{
+      position: relative;
+      text-align: center;
+      width: 100%;
+      color: green;
+    }
+
+    button:hover{
+      background-color: #b4578c;
+    }
+  
+
+    .lg{
+      margin: 4px;
+      font-size: 30px;
+      color: #1e1e2f;
+    }
+
+    .lg:hover{
+      color: #ffffff;
     }
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen bg-blue-50">
-  <div id="login-container" class="bg-white rounded-3xl shadow-lg p-8 max-w-md w-full text-center">
+  <div id="login-container" class="bg-white rounded-3xl shadow-lg p-6 max-w-sm w-full text-center">
     <div class="flex justify-center mb-6">
       <div class="bg-gray-200 p-4 rounded-full">
-        <i class="fas fa-sign-in-alt text-2xl"></i>
+        <i class="fa-solid fa-door-open" style="font-size: 30px;"></i>
+
       </div>
     </div>
-    <h1 class="text-2xl font-semibold mb-2">Sign in with Google</h1>
-    <button id="googleSignIn" class="bg-white border rounded-full p-3 mt-6 flex items-center justify-center">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" alt="Google logo" class="h-6 w-6 mr-2"/>
-      <span>Sign in with Google</span>
+    <h1 class=" font-semibold mb-2 bt">Sign in with Google</h1>
+    <button id="googleSignIn" class="bg-white border rounded-full p-3 mt-6 flex items-center justify-center transition-transform transform hover:scale-105">
+      <i class="fa-brands fa-google lg"></i>
     </button>
   </div>
 
-  <div id="profile-container" class="hidden bg-white rounded-3xl shadow-lg p-8 max-w-md w-full text-center">
+  <div id="profile-container" class="hidden bg-white rounded-3xl shadow-lg p-6 max-w-sm w-full text-center">
     <img id="profilePic" alt="User Profile Picture" class="w-20 h-20 rounded-full mx-auto mb-4"/>
-    <h2 id="userName" class="text-xl font-semibold"></h2>
-    <p id="welcomeMessage" class="text-green-600 font-semibold mb-4">Welcome back!</p>
-    <button id="signOut" class="mt-6 px-4 py-2 bg-red-500 text-white rounded-full hidden">Sign Out</button>
+    <h2 id="userName" class="text-xl font-semibold"></h2> <br>
+    <p id="welcomeMessage" class="text-green-600 font-semibold mb-4">Welcome</p>
+    
   </div>
 
   <script type="module">
@@ -83,7 +112,7 @@
       document.getElementById("profilePic").src = user.photoURL;
       document.getElementById("userName").textContent = user.displayName;
       document.getElementById("welcomeMessage").classList.remove("hidden");
-      document.getElementById("signOut").classList.add("hidden"); // Hide the sign-out button
+      document.getElementById("signOut").classList.remove("hidden"); // Show the sign-out button
     }
 
     function saveFirstLoginDate(userId) {

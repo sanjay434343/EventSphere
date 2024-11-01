@@ -9,8 +9,7 @@
     <style>
         body{
             background-color: #1e1e2f;
-            color: white;
-            overflow: hidden;
+            
         }
 
         label{
@@ -19,7 +18,55 @@
 
         h1{
             font-size: 40px;
+            color: white;
+
         }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="date"],
+        input[type="time"] {
+           
+            padding: 10px;          /* Example style: padding */
+            width: 100%;            /* Example style: full width */
+            font-size: 16px;        /* Example style: font size */            /* Example style: text color */
+            background-color: #fff; /* Example style: background color */
+        }
+
+/* Modal styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: #1e1e2fa8; /* Semi-transparent background */
+    backdrop-filter: blur(100px); /* Blur effect */
+}
+
+/* Modal Content */
+.modal-content {
+    position: absolute; /* Change to absolute for positioning */
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    top: 45%; /* Position from the top (adjust as needed) */
+    left: 50%; /* Move right 50% from the left */
+    transform: translate(-50%, 0); /* Shift back by half of its own width only */
+    background-color: #fff; /* White background */
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%; /* Responsive width */
+    max-width: 500px; /* Max width for larger screens */
+}
+
+
+        
     </style>
 </head>
 <body>
@@ -65,12 +112,19 @@
         </form>
     </div>
 
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <p id="modalMessage"><img src="lod.gif" alt="loading" class="lod"></p>
+        </div>
+    </div>
+    
+
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
         import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
-
+    
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBd1hHYd-GmINKv0l0qwi_10udbiLsTeX0",
@@ -81,12 +135,12 @@
             messagingSenderId: "320059830331",
             appId: "1:320059830331:web:221f1eebb6e363cc78ac1e"
         };
-
+    
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth();
-
+    
         // Preview selected image
         function previewImage(event) {
             const imagePreview = document.getElementById('imagePreview');
@@ -98,11 +152,16 @@
             }
             reader.readAsDataURL(file);
         }
-
+    
         // Handle form submission
         document.getElementById('eventForm').addEventListener('submit', (e) => {
             e.preventDefault();
-
+    
+            // Show the modal immediately to indicate uploading
+            const modal = document.getElementById('successModal');
+            modal.style.display = "block";
+            document.getElementById('modalMessage').innerText = "Uploading event....";
+    
             const collegeName = document.getElementById('collegeName').value;
             const eventName = document.getElementById('eventName').value;
             const eventDate = document.getElementById('eventDate').value;
@@ -111,13 +170,13 @@
             const locationLink = document.getElementById('locationLink').value;
             const tags = document.getElementById('tags').value;
             const imageInput = document.getElementById('imageInput');
-
+    
             // Convert image to Base64
             const file = imageInput.files[0];
             const reader = new FileReader();
             reader.onloadend = function() {
                 const base64String = reader.result;
-
+    
                 // Get current user
                 const user = auth.currentUser;
                 if (user) {
@@ -131,30 +190,43 @@
                         locationLink,
                         tags: tags.split(',').map(tag => tag.trim()), // Split tags by comma
                         image: base64String,
-                        uploaderUID: user.uid, // Add uploader's UID
-                        uploaderName: user.displayName || "Unknown", // Add uploader's name
-                        uploaderPhoto: user.photoURL || "https://placehold.co/40x40" // Add uploader's profile picture
+                        uploaderUID: user.uid,
+                        uploaderName: user.displayName || "Unknown",
+                        uploaderPhoto: user.photoURL || "https://placehold.co/40x40"
                     };
-
+    
                     // Upload data to Firebase under the user's ID
-                    const userRef = ref(db, 'users/' + user.uid + '/events'); // Store all events under the user's UID
-                    push(userRef, eventData) // Push new event data as a new child
+                    const userRef = ref(db, 'users/' + user.uid + '/events');
+                    push(userRef, eventData)
                         .then(() => {
-                            alert('Event uploaded successfully!');
                             document.getElementById('eventForm').reset(); // Reset the form
                             document.getElementById('imagePreview').classList.add('hidden'); // Hide the preview
+    
+                            // Show success message
+                            document.getElementById('modalMessage').innerText = "Success!";
+                            
+                            // Redirect after a delay
+                            setTimeout(() => {
+                                window.location.href = '../home/'; // Change to your home page URL
+                            }, 3000); // 3 seconds delay
                         })
                         .catch((error) => {
                             console.error('Error uploading event:', error);
                             alert('Failed to upload event. Please try again.');
+                            modal.style.display = "none"; // Hide modal on error
                         });
                 } else {
                     alert('User not authenticated. Please log in.');
+                    modal.style.display = "none"; // Hide modal on error
                 }
             };
             reader.readAsDataURL(file);
         });
-
+    
+        
+      
     </script>
+    
+    
 </body>
 </html>
