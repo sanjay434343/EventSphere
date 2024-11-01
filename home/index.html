@@ -108,6 +108,7 @@
             import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
             import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
         
+<<<<<<< HEAD
             // Firebase configuration
             const firebaseConfig = {
                 apiKey: "AIzaSyBd1hHYd-GmINKv0l0qwi_10udbiLsTeX0",
@@ -118,6 +119,35 @@
                 messagingSenderId: "320059830331",
                 appId: "1:320059830331:web:221f1eebb6e363cc78ac1e"
             };
+=======
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth();
+    
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../login/"; // Replace with your login page URL
+            } else {
+                // Set user name and profile picture
+                document.getElementById('userName').textContent = user.displayName || "User Name";
+                document.getElementById('profilePicture').src = user.photoURL || "https://placehold.co/40x40"; // Default image if none
+
+                displayPosts(); // Call the function to display posts for all users
+            }
+        });
+        function displayPosts() {
+            const postsContainer = document.getElementById('postsContainer');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            loadingSpinner.classList.remove('hidden'); // Show spinner
+            const usersRef = ref(db, 'users'); // Reference to the users node
+            
+            onValue(usersRef, usersSnapshot => {
+                postsContainer.innerHTML = ''; // Clear previous events
+                loadingSpinner.classList.add('hidden'); // Hide spinner
+>>>>>>> 92e3a5de7b2cb9593a22b3fde8d3b78c0f0bb130
         
             // Initialize Firebase
             const app = initializeApp(firebaseConfig);
