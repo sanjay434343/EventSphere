@@ -128,7 +128,7 @@
             background-color: #fff095;
             padding: 7.5px 20px;
             border-radius: 5px;
-            color: #ffdf00;
+            color: #706100;
         }
     </style>
 </head>
@@ -189,7 +189,7 @@
                 }
             });
 
-           // Function to display posts based on search term
+   // Function to display posts based on search term
 async function displayPosts(searchTerm = "") {
     const postsContainer = document.getElementById('postsContainer');
     const loadingSpinner = document.getElementById('loadingSpinner');
@@ -218,8 +218,11 @@ async function displayPosts(searchTerm = "") {
 
         // Filter posts based on search term
         if (searchTerm) {
-            allPosts = allPosts.filter(event => event.eventName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                                   event.collegeName.toLowerCase().includes(searchTerm.toLowerCase()));
+            allPosts = allPosts.filter(event => 
+                event.eventName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                event.collegeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (event.uploaderName && event.uploaderName.toLowerCase().includes(searchTerm.toLowerCase())) // Added this line
+            );
         }
 
         loadingSpinner.classList.add('hidden');
@@ -400,6 +403,17 @@ function updateShareCount(eventKey) {
         shareCountElement.textContent = currentCount + 1; // Increment share count
     }
 }
+
+
+let timeoutId;
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+        const searchTerm = e.target.value.trim();
+        displayPosts(searchTerm); // Pass the search term to displayPosts
+    }, 300); // Adjust the delay as needed
+});
 
         </script>
     </div>
