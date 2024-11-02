@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EventSphere</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         /* Reset and base styles */
         * {
@@ -21,7 +23,7 @@
             margin: 0;
             overflow: hidden;
             font-family: 'Roboto', sans-serif;
-            background: linear-gradient(120deg, #2c3e50, #4ca1af);
+            background:#1e1e2f;
             background-size: 200% 200%;
             animation: gradient 10s ease-in-out infinite;
         }
@@ -35,13 +37,16 @@
             }
         }
 
-        #splash {
+        #splash  {
             color: white;
-            font-size: 4rem;
+            font-size: 8rem;
             opacity: 0;
             transition: opacity 1.5s ease, transform 1.5s ease;
         }
 
+        i{
+            font-size: 80px;
+        }
         /* Responsive font sizes */
         @media (max-width: 768px) {
             #splash {
@@ -57,7 +62,7 @@
     </style>
 </head>
 <body>
-    <div id="splash">EventSphere</div>
+    <div id="splash"><i class="fa-solid fa-circle fa-bounce"></i></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.2/gsap.min.js"></script>
     <script>

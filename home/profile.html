@@ -7,6 +7,8 @@
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <style>
             body {
                 font-family: 'Roboto', sans-serif;
@@ -43,40 +45,7 @@
                 margin-bottom: 10px;
             }
 
-            .loading-modal {
-                position: fixed; 
-                top: 0; 
-                left: 0; 
-                right: 0; 
-                bottom: 0; 
-                background-color: #1e1e2fa8; /* Semi-transparent background */
-                backdrop-filter: blur(100px);
-                display: flex; 
-                justify-content: center; 
-                align-items: center; 
-                z-index: 50; /* Make sure it is above other elements */
-                opacity: 0; /* Start hidden */
-                transition: opacity 0.5s; /* Smooth transition */
-            }
-
-            .loading-modal.show {
-                opacity: 1; /* Show the modal */
-            }
-
-            .loading-spinner {
-                border: 8px solid rgba(255, 255, 255, 0.2); /* Light border */
-                border-left-color: #1e1e2f; /* Main spinner color */
-                border-radius: 50%; /* Make it circular */
-                width: 50px; /* Spinner size */
-                height: 50px; /* Spinner size */
-                animation: spin 1s linear infinite; /* Spin animation */
-            }
-
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-
+           
             #logoutButton {
                 cursor: pointer;
                 position: relative; /* Ensure it can be layered */
@@ -103,15 +72,15 @@
                         <img id="profilePic" src="https://placehold.co/100x100" alt="Profile picture" class="w-24 h-24 rounded-full mr-4 profile-pic">
                     </label>
                     <div>
-                        <h2 class="text-xl font-bold" id="userName">David Bekham</h2>
-                        <p class="text-sm text-gray-400" id="userEmail">david.bekham@example.com</p>
+                        <h2 class="text-xl font-bold" id="userName">---------</h2>
+                        <p class="text-sm text-gray-400" id="userEmail">---------</p>
                     </div>
                 </div>
                 <hr class="my-4">
                 <div>
                     <h3 class="font-bold">Account Information</h3>
-                    <p class="text-sm text-gray-400">User ID: <span id="userId">123456</span></p>
-                    <p class="text-sm text-gray-400">First Login Date: <span id="firstLoginDate">January 1, 2020</span></p>
+                    <p class="text-sm text-gray-400">User ID: <span id="userId">---------</span></p>
+                    <p class="text-sm text-gray-400">First Login Date: <span id="firstLoginDate">---------</span></p>
                 </div>
             </div>
 

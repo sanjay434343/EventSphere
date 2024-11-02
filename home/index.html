@@ -67,6 +67,17 @@
             margin-left: -1800px;
         }
        }
+
+       .bb{
+        z-index: 1000;
+       }
+
+       .glow {
+        color: #ffdf00; /* Gold color for the liked state */
+        text-shadow: 0px 0px 10px rgba(255, 223, 0, 0.8); /* Soft glow effect */
+        transition: color 0.3s, text-shadow 0.3s;
+    }
+    
     </style>
 </head>
 <body class="text-white">
@@ -105,7 +116,7 @@
         <script type="module">
             // Import Firebase modules
             import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-            import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+            import { getDatabase, ref, onValue, update , get } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
             import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
         
             // Firebase configuration
@@ -167,7 +178,7 @@
                                                     <span class="font-bold">${eventData.uploaderName || "User Name"}</span>
                                                 </div>
                                             </div>
-                                            <div class="flex items-center space-x-2">
+                                            <div class="flex items-center space-x-2 bb">
                                                 <button class="text-gray-400 flex items-center space-x-1" id="likeButton-${eventKey}" onclick="likePost('${userSnapshot.key}', '${eventKey}')">
                                                     <i class="fas fa-thumbs-up"></i>
                                                     <span id="likeCount-${eventKey}">${eventData.likeCount || 0}</span>
@@ -234,22 +245,37 @@
                 });
             }
         
-            // Like post function
-            window.likePost = function(userId, eventId) {
-                const userRef = ref(db, `users/${userId}/likes/${eventId}`); // Reference to track user likes
+            window.likePost = async function(userId, eventId) {
+                const userRef = ref(db, `users/${userId}/likes/${eventId}`);
                 const likeCountElement = document.getElementById(`likeCount-${eventId}`);
-        
-                onValue(userRef, (snapshot) => {
-                    if (!snapshot.exists()) {
-                        const currentLikes = parseInt(likeCountElement.textContent);
-                        likeCountElement.textContent = currentLikes + 1; // Update like count locally
-                        update(userRef, { liked: true }); // Mark this post as liked by the user
-        
-                        const eventRef = ref(db, `users/${userId}/events/${eventId}`);
-                        update(eventRef, { likeCount: currentLikes + 1 }); // Update like count in Firebase
-                    } 
-                });
-            }
+                const eventRef = ref(db, `users/${userId}/events/${eventId}`);
+                const likeButton = document.getElementById(`likeButton-${eventId}`); // Like button element for glow effect
+            
+                try {
+                    // Check if the user has already liked the post
+                    const snapshot = await get(userRef);
+                    const currentLikes = parseInt(likeCountElement.textContent);
+            
+                    if (snapshot.exists()) {
+                        // User has already liked, so we remove the like
+                        likeCountElement.textContent = currentLikes - 1;
+                        await update(eventRef, { likeCount: currentLikes - 1 });
+                        await update(userRef, null); // Remove like from the user's likes
+                        likeButton.classList.remove("glow"); // Remove the glow effect
+                        console.log(`Like removed for Event ID: ${eventId}`);
+                    } else {
+                        // User has not liked, so we add the like
+                        likeCountElement.textContent = currentLikes + 1;
+                        await update(eventRef, { likeCount: currentLikes + 1 });
+                        await update(userRef, { liked: true }); // Mark this post as liked by the user
+                        likeButton.classList.add("glow"); // Add the glow effect
+                        console.log(`Like added for Event ID: ${eventId}`);
+                    }
+                } catch (error) {
+                    console.error("Error toggling like status:", error);
+                }
+            };
+            
         
             // Share post function
             window.sharePost = function(eventLink, eventId) {
