@@ -12,6 +12,8 @@
         <style>
             body {
                 font-family: 'Roboto', sans-serif;
+            background-color: #ffdd006a;
+                
             }
             .profile-pic {
                 background-color: #ccc; /* Fallback color for loading */
@@ -51,21 +53,31 @@
                 position: relative; /* Ensure it can be layered */
                 z-index: 1000; /* Ensure it's above other elements */
             }
+
+            hr{
+                border: 1px solid #ffffff;
+            }
+            
+            .btt{
+                background-color: #ffdf00;
+                color: white;
+                font-weight: 1000;
+            }
             
         </style>
     </head>
-    <body class="bg-[#1E1E2F] text-white">
+    <body>
         <div class="max-w-md mx-auto p-6">
             <!-- Header -->
             <div class="flex items-center justify-between mb-4">
                 <h1 class="text-2xl font-bold">Profile</h1>
-                <a id="logoutButton" class="bg-red-500 px-4 py-2 rounded-md">
+                <a id="logoutButton" class=" px-4 py-2 rounded-md btt">
                     Logout
                 </a>
             </div>
 
             <!-- Profile Section -->
-            <div class="bg-[#2A2A3B] p-6 rounded-lg shadow-md">
+            <div class="bg-[#ffdf00] p-6 rounded-lg shadow-md">
                 <div class="flex items-center mb-4">
                     <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="updateProfilePicture(event)">
                     <label for="profilePicInput" class="cursor-pointer">
@@ -73,14 +85,14 @@
                     </label>
                     <div>
                         <h2 class="text-xl font-bold" id="userName">---------</h2>
-                        <p class="text-sm text-gray-400" id="userEmail">---------</p>
+                        <p class="text-sm text-black" id="userEmail">---------</p>
                     </div>
                 </div>
                 <hr class="my-4">
                 <div>
                     <h3 class="font-bold">Account Information</h3>
-                    <p class="text-sm text-gray-400">User ID: <span id="userId">---------</span></p>
-                    <p class="text-sm text-gray-400">First Login Date: <span id="firstLoginDate">---------</span></p>
+                    <p class="text-sm text-black">User ID: <span id="userId">---------</span></p>
+                    <p class="text-sm text-black">First Login Date: <span id="firstLoginDate">---------</span></p>
                 </div>
             </div>
 
@@ -183,13 +195,13 @@
                             const event = events[eventId];
                             
                             const eventElement = document.createElement('div');
-                            eventElement.className = "bg-[#2A2A3B] rounded-lg shadow-md event-card"; // Card style
+                            eventElement.className = "bg-[#FFFFFFFF] rounded-lg shadow-md event-card"; // Card style
                             eventElement.innerHTML = `
                                 <img src="${event.image}" alt="${event.eventName}" class="event-image rounded-lg">
                                 <h4 class="title">${event.eventName}</h4>
                                 <div class="flex justify-around items-center mt-2 bt">
-                                    <span class="text-white">${event.likeCount || 0} <i class="fas fa-thumbs-up ic"></i></span>
-                                    <span class="text-white">${event.shareCount || 0} <i class="fas fa-share ic"></i></span>
+                                    <span class="text-black">${event.likeCount || 0} <i class="fas fa-thumbs-up ic"></i></span>
+                                    <span class="text-black">${event.shareCount || 0} <i class="fas fa-share ic"></i></span>
                                 </div>
                             `;
                             eventsContainer.appendChild(eventElement); // Append to the correct container
