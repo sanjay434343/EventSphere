@@ -92,7 +92,7 @@
                 <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='profile.html'">
                     <i class="fas fa-user text-xl text-gray-400"></i>
                 </div>
-                <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='../add/'">
+                <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='../add/y'">
                     <i class="fas fa-add text-xl text-gray-400"></i>
                 </div>
                 <div class=" p-2 rounded-full cursor-pointer" onclick="window.location.href='profile.html'">
@@ -116,7 +116,7 @@
         <script type="module">
             // Import Firebase modules
             import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-            import { getDatabase, ref, onValue, update , get } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+            import { getDatabase, ref, onValue, update,get , remove , set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
             import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
         
             // Firebase configuration
@@ -245,37 +245,48 @@
                 });
             }
         
-            window.likePost = async function(userId, eventId) {
-                const userRef = ref(db, `users/${userId}/likes/${eventId}`);
-                const likeCountElement = document.getElementById(`likeCount-${eventId}`);
-                const eventRef = ref(db, `users/${userId}/events/${eventId}`);
-                const likeButton = document.getElementById(`likeButton-${eventId}`); // Like button element for glow effect
+
+
+window.likePost = async function(userId, eventId) {
+    const userRef = ref(db, `users/${userId}/likes/${eventId}`);
+    const eventRef = ref(db, `users/${userId}/events/${eventId}`);
+    const likeCountElement = document.getElementById(`likeCount-${eventId}`);
+    const likeButton = document.getElementById(`likeButton-${eventId}`); // Like button element for glow effect
+
+    try {
+        // Get the current like count from Firebase
+        const eventSnapshot = await get(eventRef);
+        const currentLikes = eventSnapshot.exists() ? (eventSnapshot.val().likeCount || 0) : 0;
+
+        // Check if the user has already liked the post
+        const userSnapshot = await get(userRef);
+
+        if (userSnapshot.exists()) {
+            // User has already liked, so we remove the like
+            const newLikesCount = Math.max(0, currentLikes - 1); // Prevent negative like count
+            likeCountElement.textContent = newLikesCount; // Update like count locally
             
-                try {
-                    // Check if the user has already liked the post
-                    const snapshot = await get(userRef);
-                    const currentLikes = parseInt(likeCountElement.textContent);
+            // Correctly update the like count in Firebase
+            await update(eventRef, { likeCount: newLikesCount }); 
+            await remove(userRef); // Remove like from the user's likes
+            likeButton.classList.remove("glow"); // Remove the glow effect
+            console.log(`Like removed for Event ID: ${eventId}`);
+        } else {
+            // User has not liked, so we add the like
+            const newLikesCount = currentLikes + 1; // Increase like count
+            likeCountElement.textContent = newLikesCount; // Update like count locally
             
-                    if (snapshot.exists()) {
-                        // User has already liked, so we remove the like
-                        likeCountElement.textContent = currentLikes - 1;
-                        await update(eventRef, { likeCount: currentLikes - 1 });
-                        await update(userRef, null); // Remove like from the user's likes
-                        likeButton.classList.remove("glow"); // Remove the glow effect
-                        console.log(`Like removed for Event ID: ${eventId}`);
-                    } else {
-                        // User has not liked, so we add the like
-                        likeCountElement.textContent = currentLikes + 1;
-                        await update(eventRef, { likeCount: currentLikes + 1 });
-                        await update(userRef, { liked: true }); // Mark this post as liked by the user
-                        likeButton.classList.add("glow"); // Add the glow effect
-                        console.log(`Like added for Event ID: ${eventId}`);
-                    }
-                } catch (error) {
-                    console.error("Error toggling like status:", error);
-                }
-            };
-            
+            // Correctly set the like count and user like status in Firebase
+            await update(eventRef, { likeCount: newLikesCount }); 
+            await set(userRef, { liked: true }); // Mark this post as liked by the user
+            likeButton.classList.add("glow"); // Add the glow effect
+            console.log(`Like added for Event ID: ${eventId}`);
+        }
+    } catch (error) {
+        console.error("Error toggling like status:", error);
+    }
+};
+
         
             // Share post function
             window.sharePost = function(eventLink, eventId) {
