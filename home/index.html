@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Media App</title>
+    <title>EventSphere</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -63,6 +63,8 @@
 
        .da{
         font-size: 16px;
+        color: #3a3a3a;
+        
        }
 
        @media screen and (max-width: 468px){
@@ -97,7 +99,7 @@
     }
 
     .txt{
-        background-color: #ffdd009a;
+        background-color: #fff0919a;
         padding: 10px;
         border-radius: 10px;
         text-align: center;
@@ -110,6 +112,7 @@
 
     .txts{
         margin-left: 0;
+        color: #3a3a3a;
     }
     </style>
 </head>
@@ -178,7 +181,7 @@
         }
     });
 
-   // Function to display posts from all users
+ // Function to display posts from all users
 function displayPosts(currentUserId) {
     const postsContainer = document.getElementById('postsContainer');
     const loadingSpinner = document.getElementById('loadingSpinner');
@@ -231,18 +234,14 @@ function displayPosts(currentUserId) {
                                     <i class="fas fa-thumbs-up" style="color:#000000FF;"></i>
                                     <span id="likeCount-${eventData.eventKey}" style="color:#000000FF;">${eventData.likeCount || 0}</span>
                                 </button>
-                              
                             </div>
                         </div>
-                              <div class="txt">
-                            <span class="txts">Inst & Event: </span> <br>
-                            <span class="da">${eventData.eventName} & ${eventData.collegeName}</span>
+                        <div class="txt">
+                            <span class="txts">Event & Inst : </span> <br>
+                            <span class="da">${eventData.eventName} @ ${eventData.collegeName}</span>
                         </div>
-                        
                         <img src="${eventData.image}" alt="Event image" class="w-full h-60 object-cover rounded-md mb-2">
-                       
-                   
-                         <div class="mb-2">
+                        <div class="mb-2">
                             <span class="tx">Date:</span> 
                             <span class="da">${eventData.eventDate}</span>
                         </div>
@@ -257,7 +256,7 @@ function displayPosts(currentUserId) {
                             <p class="description text-sm mb-2" id="shortDesc-${eventData.eventKey}">
                                 ${eventData.description.length > 100 ? eventData.description.substring(0, 100) + '...' : eventData.description}
                             </p>
-                            ${eventData.description.length > 100 ? `<span class="read-more">More</span>` : ''}
+                            ${eventData.description.length > 100 ? `<span class="read-more cursor-pointer text-blue-500"><i class="fa-solid fa-caret-down"></i></span>` : ''}
                             <p class="full-description text-sm mb-2" style="display:none; margin:0;">
                                 <span>${eventData.description}</span>
                             </p>
@@ -272,8 +271,29 @@ function displayPosts(currentUserId) {
 
         // Append the entire fragment to the posts container at once
         postsContainer.appendChild(fragment);
+
+        // Now add event listeners for read-more buttons
+        const readMoreButtons = postsContainer.querySelectorAll('.read-more');
+        
+        readMoreButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const fullDescription = this.nextElementSibling; // Full description
+                const shortDescription = this.previousElementSibling; // Short description
+
+                if (fullDescription.style.display === 'none' || fullDescription.style.display === '') {
+                    fullDescription.style.display = 'block'; // Show full description
+                    shortDescription.style.display = 'none'; // Hide short description
+                    this.innerHTML = '<i class="fa-solid fa-caret-up"></i>';
+                } else {
+                    fullDescription.style.display = 'none'; // Hide full description
+                    shortDescription.style.display = 'block'; // Show short description
+                    this.innerHTML = '<i class="fa-solid fa-caret-down"></i>';
+                }
+            });
+        });
     });
 }
+
 
 // Helper function to create an HTML element from a string
 function createElementFromHTML(htmlString) {
@@ -291,38 +311,34 @@ function shuffleArray(array) {
     return array;
 }
 
-
-        
 window.likePost = async function(userId, eventId, currentUserId) {
-    const userLikeRef = ref(db, `users/${currentUserId}/likes/${eventId}`); // Reference to the user's like
-    const eventRef = ref(db, `users/${userId}/events/${eventId}`); // Reference to the event
+    const userLikeRef = ref(db, `users/${currentUserId}/likes/${eventId}`);
+    const eventRef = ref(db, `users/${userId}/events/${eventId}`);
     const likeCountElement = document.getElementById(`likeCount-${eventId}`);
     const likeButton = document.getElementById(`likeButton-${eventId}`);
 
     try {
         // Check if the user has already liked the post
         const userSnapshot = await get(userLikeRef);
-
         if (userSnapshot.exists()) {
-            // User has already liked the post
             console.log(`You have already liked this post: ${eventId}`);
-            return; // Exit the function without adding another like
+            return;
         }
 
-        // Get the current like count from Firebase
+        // Get current like count from Firebase
         const eventSnapshot = await get(eventRef);
         const currentLikes = eventSnapshot.exists() ? (eventSnapshot.val().likeCount || 0) : 0;
 
-        // Increment like count
-        const newLikesCount = currentLikes + 1; // Increase like count
+        // Increment the like count
+        const newLikesCount = currentLikes + 1;
 
-        // Update like count in Firebase
+        // Update Firebase with the new like count and user's like record
         await update(eventRef, { likeCount: newLikesCount });
-        await set(userLikeRef, true); // Mark the like in the user's likes
+        await set(userLikeRef, true);
 
-        // Update UI
-        likeCountElement.textContent = newLikesCount; // Update like count in the UI
-        likeButton.classList.add("glow"); // Add glow effect
+        // ** Update UI Immediately **
+        likeCountElement.textContent = newLikesCount; // Show updated like count instantly
+        likeButton.classList.add("glow"); // Add glow effect to show it's liked
         likeButton.disabled = true; // Disable button after liking
 
         console.log(`Like added for Event ID: ${eventId}`);
